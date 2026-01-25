@@ -5,17 +5,15 @@ body {
     font-family: monospace;
     color: white;
 }
-#world {
+#canvas {
     position: absolute;
-    border: 2px solid blue;
-    display: inline-block;
-    width: 1000px;
-    height: 1000px;
-    background: url(assets/textures/background.png);
-    image-rendering: pixelated;
-    z-index: -1;
-
-    transform: inherit;
-
-    transform-origin: 50%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#crosshair {
+    width: 2px;
+    height: 2px;
+    background-color: white;
 }
