@@ -2,10 +2,7 @@ let heldKeys = {}
 window.onkeydown = function(e) {
     heldKeys[e.code] = true
     if (e.code == "KeyE") {
-        //testObject.changePos({x: 10, y: 10})
-        //testObject.setScale(testObject.scale + 1)
-        //testObject.setDebug(!testObject.debug)
-        //child.setRot(0, child.rot.y+5, 0, 5)
+
     }
 }
 window.onkeyup = function(e) {
@@ -16,21 +13,6 @@ function nopx(prop) {
     return Number(prop.substring(0, prop.length-2))
 }
 
-const images = {};
-function preload() {
-    for (var i = 0; i < arguments.length; i++) {
-        const img = arguments[i]
-        images[img] = new Image();
-        images[img].onload = function() {
-            console.log("loaded "+ img)
-        }
-        images[img].src = "assets/textures/"+ img;
-    }
-}
-preload(
-    "placeholder.png",
-    "placeholder2.png"
-)
 /**
  * Makes a new game object
  * @param {object} options
@@ -38,17 +20,32 @@ preload(
  */
 function sprite(options) {
     if (options == null) {options = {}}
+    const sprite = this
 
     this.parent = options.parent || {body: document.getElementById("canvas")} // Default parent is the canvas
     this.pos = options.pos || {x:0, y:0}
     this.rot = options.rot || {x:0, y:0, z:0}
     this.scale = options.scale || 1
-    
-    this.texture = images[options.texture] || images["placeholder2.png"]
-    this.size = options.size || {
-        x: this.texture.width,
-        y: this.texture.height
+
+    this.texture
+    this.size = options.size
+
+    this.setTexture = function(url) {
+        sprite.texture = new Image();
+        sprite.texture.onload = function() {
+            if (sprite.size == null) {
+                sprite.size = {
+                    x: sprite.texture.width,
+                    y: sprite.texture.height
+                }
+            }
+            sprite.render()
+        }
+
+        sprite.texture.src = "assets/textures/"+ url;
     }
+
+    this.setTexture(options.texture || "placeholder2.png")
 
     this.debug = options.debug || false
 
@@ -80,7 +77,7 @@ function sprite(options) {
         this.debug = bool
         this.render()
     }
-    this.setTextureSize = function(s) {
+    this.setSize = function(s) {
         this.size = s
         this.render()
     }
@@ -113,13 +110,13 @@ function sprite(options) {
 
         this.body.style.border = this.debug ? "1px solid yellow" : "none"
     }
-    this.render()
+    //this.render()
 }
 
 window.onload = function() {
     console.log("Everything has been loaded!");
 
-    const camera = new sprite({
+    const world = new sprite({
         pos: {
             x: 100,
             y: 100
@@ -127,27 +124,42 @@ window.onload = function() {
         size: {
             x: 128,
             y: 128
-        }
+        },
+        texture: "background.png"
     })
     const child = new sprite({
-        parent: camera,
-        texture: "placeholder.png",
+        parent: world,
+        texture: "bot.png",
         pos: {
             x: 0,
             y: 0
         },
     })
 
-    //console.log(child)
-
     const canvas = document.getElementById("canvas")
 
+    let camZoom = 0
+    world.setScale(0.5+(camZoom+1)*camZoom)
     canvas.onwheel = function(e) {
-
+        camZoom += e.deltaY/-1000
+        camZoom = Math.min(Math.max(camZoom, 0),4)
+        const lastScale = world.scale
+        world.setScale(0.5+(camZoom+1)*camZoom)
+        const diff = lastScale - world.scale
+        console.log(diff*(e.x - world.pos.x))
     }
 
+    const camPos = {x:0, y:0}
     function render() {
-        camera.setRot({x: 75, y: 0, z: camera.rot.z+0.1, p:128})
+        const camSpeed = heldKeys["ShiftLeft"] ? 16 : 8
+        if (heldKeys["KeyW"]) {camPos.y -= camSpeed}
+        if (heldKeys["KeyS"]) {camPos.y += camSpeed}
+        if (heldKeys["KeyA"]) {camPos.x -= camSpeed}
+        if (heldKeys["KeyD"]) {camPos.x += camSpeed}
+        world.changePos({
+            x: (-world.pos.x-camPos.x)/10,
+            y: (-world.pos.y-camPos.y)/10
+        })
     }
 
     setInterval(render, 10)
