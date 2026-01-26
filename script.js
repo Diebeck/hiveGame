@@ -97,6 +97,7 @@ function sprite(options) {
     this.render = function() {
         // Sets the center of the element to where it's top left corner was
         // Then sets its center to the center of its parent
+        this.body.style.imageRendering = "pixelated"
         this.body.style.position = "absolute"
         this.body.style.left = (this.pos.x - this.size.x/2) + nopx(this.parent.body.style.width)/2 +"px"
         this.body.style.top = (-this.pos.y - this.size.y/2) + nopx(this.parent.body.style.height)/2 +"px"
@@ -118,10 +119,12 @@ function sprite(options) {
         if (this.texture != null) {
             this.body.style.background = "url("+ this.texture.src +")"
         }
-        this.body.style.imageRendering = "pixelated"
+        
         
         this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) "
         this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
+
+        
 
         this.body.style.border = this.debug ? "1px solid yellow" : "none"
     }
@@ -136,7 +139,7 @@ window.onload = function() {
             x: 1000,
             y: 1000
         },
-        scale: 1,
+        //scale: 1,
         offset: {
             x: 0,
             y: 0
@@ -151,11 +154,17 @@ window.onload = function() {
     })
     const child = new sprite({
         parent: world,
-        texture: "placeholder.png",
+        texture: "bot2.png",
         pos: {
             x: 0,
             y: 0
         },
+        rot: {
+            x: -15,
+            y: 0,
+            z: 0,
+            p: 0
+        }
     })
 
     const canvas = document.getElementById("canvas")
@@ -179,6 +188,8 @@ window.onload = function() {
         if (heldKeys["KeyS"]) {camPos.y += camSpeed / world.scale}
         if (heldKeys["KeyA"]) {camPos.x -= camSpeed / world.scale}
         if (heldKeys["KeyD"]) {camPos.x += camSpeed / world.scale}
+        camPos.x = clamp(camPos.x, world.size.x/-2, world.size.x/2)
+        camPos.y = clamp(camPos.y, world.size.y/-2, world.size.y/2)
         world.setOffset({
             x: world.offset.x + (-world.offset.x-camPos.x)/10,
             y: world.offset.y + (-world.offset.y-camPos.y)/10
