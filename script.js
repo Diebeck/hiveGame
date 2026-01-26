@@ -12,6 +12,9 @@ window.onkeyup = function(e) {
 function nopx(prop) {
     return Number(prop.substring(0, prop.length-2))
 }
+function clamp(value, min, max) {
+    return Math.min(Math.max(value,min),max)
+}
 
 /**
  * Makes a new game object
@@ -32,21 +35,25 @@ function sprite(options) {
     this.size = options.size
 
     this.setTexture = function(url) {
-        sprite.texture = new Image();
-        sprite.texture.onload = function() {
-            if (sprite.size == null) {
-                sprite.size = {
-                    x: sprite.texture.width,
-                    y: sprite.texture.height
+        if (url) {
+            sprite.texture = new Image();
+            sprite.texture.onload = function() {
+                if (sprite.size == null) {
+                    sprite.size = {
+                        x: sprite.texture.width,
+                        y: sprite.texture.height
+                    }
                 }
+                sprite.render()
             }
-            sprite.render()
+            sprite.texture.src = "assets/textures/"+ url;
+        } else {
+            sprite.texture = null
+            sprite.size = {x:0, y:0}
         }
-
-        sprite.texture.src = "assets/textures/"+ url;
     }
 
-    this.setTexture(options.texture || "placeholder2.png")
+    this.setTexture(options.texture)
 
     this.debug = options.debug || false
 
@@ -108,9 +115,10 @@ function sprite(options) {
 
         this.body.style.width = this.size.x +"px"
         this.body.style.height = this.size.y +"px"
-        this.body.style.background = "url("+ this.texture.src +")"
+        if (this.texture != null) {
+            this.body.style.background = "url("+ this.texture.src +")"
+        }
         this.body.style.imageRendering = "pixelated"
-
         
         this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) "
         this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
@@ -125,8 +133,8 @@ window.onload = function() {
 
     const world = new sprite({
         size: {
-            x: 64,
-            y: 64
+            x: 1000,
+            y: 1000
         },
         scale: 1,
         offset: {
@@ -134,11 +142,12 @@ window.onload = function() {
             y: 0
         },
         rot: {
-            x: 15,
+            x: 0,
             y: 0,
             z: 0,
             p: 500
-        }
+        },
+        texture: "background.png"
     })
     const child = new sprite({
         parent: world,
@@ -157,14 +166,15 @@ window.onload = function() {
     world.setScale(0.5+(camZoom+1)*camZoom)
     canvas.onwheel = function(e) {
         camZoom += e.deltaY/-1000
-        camZoom = Math.min(Math.max(camZoom, 0),4) // Clamps the value
+        camZoom = clamp(camZoom, 0, 3)
         camZoom = Math.floor(camZoom*100)/100 // Removes any imprecision errors
         world.setScale(0.5+(camZoom+1)*camZoom)
+        console.log(world.scale)
     }
 
     const camPos = {x:0, y:0}
     function render() {
-        const camSpeed = heldKeys["ShiftLeft"] ? 24 : 8
+        const camSpeed = heldKeys["ShiftLeft"] ? 24 : 12
         if (heldKeys["KeyW"]) {camPos.y -= camSpeed / world.scale}
         if (heldKeys["KeyS"]) {camPos.y += camSpeed / world.scale}
         if (heldKeys["KeyA"]) {camPos.x -= camSpeed / world.scale}
@@ -173,7 +183,6 @@ window.onload = function() {
             x: world.offset.x + (-world.offset.x-camPos.x)/10,
             y: world.offset.y + (-world.offset.y-camPos.y)/10
         })
-        console.log(camZoom)
         canvas.style.width = window.innerWidth +"px"
         canvas.style.height = window.innerHeight +"px"
         world.render()
