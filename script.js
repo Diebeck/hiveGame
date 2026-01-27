@@ -49,7 +49,7 @@ function sprite(options) {
             sprite.texture.src = "assets/textures/"+ url;
         } else {
             sprite.texture = null
-            sprite.size = {x:0, y:0}
+            if (sprite.size == null) {sprite.size = {x:0, y:0}}
         }
     }
 
@@ -97,7 +97,6 @@ function sprite(options) {
     this.render = function() {
         // Sets the center of the element to where it's top left corner was
         // Then sets its center to the center of its parent
-        this.body.style.imageRendering = "pixelated"
         this.body.style.position = "absolute"
         this.body.style.left = (this.pos.x - this.size.x/2) + nopx(this.parent.body.style.width)/2 +"px"
         this.body.style.top = (-this.pos.y - this.size.y/2) + nopx(this.parent.body.style.height)/2 +"px"
@@ -120,11 +119,11 @@ function sprite(options) {
             this.body.style.background = "url("+ this.texture.src +")"
         }
         
-        
         this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) "
         this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
+        this.body.style.imageRendering = "pixelated"
 
-        
+        //this.body.style.filter = "drop-shadow(5px 5px 5px #222)"
 
         this.body.style.border = this.debug ? "1px solid yellow" : "none"
     }
@@ -139,7 +138,6 @@ window.onload = function() {
             x: 1000,
             y: 1000
         },
-        //scale: 1,
         offset: {
             x: 0,
             y: 0
@@ -148,7 +146,7 @@ window.onload = function() {
             x: 0,
             y: 0,
             z: 0,
-            p: 500
+            p: 0
         },
         texture: "background.png"
     })
@@ -171,32 +169,38 @@ window.onload = function() {
     canvas.style.width = window.innerWidth +"px"
     canvas.style.height = window.innerHeight +"px"
 
-    let camZoom = 0
-    world.setScale(0.5+(camZoom+1)*camZoom)
+    let camZoom = 1
+    world.setScale(Math.pow(camZoom+1, 2))
     canvas.onwheel = function(e) {
         camZoom += e.deltaY/-1000
-        camZoom = clamp(camZoom, 0, 3)
+        camZoom = clamp(camZoom, -0.29, 3)
         camZoom = Math.floor(camZoom*100)/100 // Removes any imprecision errors
-        world.setScale(0.5+(camZoom+1)*camZoom)
-        console.log(world.scale)
+        world.setScale(Math.pow(camZoom+1, 2))
     }
+
+    const debugInfo = this.document.getElementById("debugInfo")
 
     const camPos = {x:0, y:0}
     function render() {
-        const camSpeed = heldKeys["ShiftLeft"] ? 24 : 12
-        if (heldKeys["KeyW"]) {camPos.y -= camSpeed / world.scale}
-        if (heldKeys["KeyS"]) {camPos.y += camSpeed / world.scale}
+        let camSpeed = 12
+        if (heldKeys["ShiftLeft"]) {camSpeed *= 2}
+        if (heldKeys["KeyW"]) {camPos.y += camSpeed / world.scale}
+        if (heldKeys["KeyS"]) {camPos.y -= camSpeed / world.scale}
         if (heldKeys["KeyA"]) {camPos.x -= camSpeed / world.scale}
         if (heldKeys["KeyD"]) {camPos.x += camSpeed / world.scale}
         camPos.x = clamp(camPos.x, world.size.x/-2, world.size.x/2)
         camPos.y = clamp(camPos.y, world.size.y/-2, world.size.y/2)
         world.setOffset({
-            x: world.offset.x + (-world.offset.x-camPos.x)/10,
-            y: world.offset.y + (-world.offset.y-camPos.y)/10
+            x: world.offset.x + (-world.offset.x-camPos.x)/5, // range 0-20 +1
+            y: world.offset.y + (-world.offset.y+camPos.y)/5
         })
         canvas.style.width = window.innerWidth +"px"
         canvas.style.height = window.innerHeight +"px"
         world.render()
+
+        debugInfo.innerText = ""
+        debugInfo.innerText += "Cam X Y: "+ camPos.x.toFixed(2) +" "+ camPos.y.toFixed(2) +"\n"
+        debugInfo.innerText += "Cam zoom: "+ camZoom +" ("+ world.scale.toFixed(2) +")\n"
     }
 
     setInterval(render, 10)

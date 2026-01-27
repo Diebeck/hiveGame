@@ -5,13 +5,26 @@ body {
     font-family: monospace;
     color: white;
 }
+.ui {
+    position: absolute;
+    z-index: 1;
+    backdrop-filter: blur(5px);
+    background-color: rgba(70, 130, 180, 0.5);
+    border-radius: 5px;
+}
+#settings {
+    top: 10px;
+    left: 10px;
+    width: 100px;
+    height: 100px;
+}
+#debugInfo {
+    top: 50%;
+    background-color: unset;
+}
 #canvas {
     position: absolute;
     top: 0;
     left: 0;
-}
-#crosshair {
-    width: 2px;
-    height: 2px;
-    background-color: white;
+    z-index: 0;
 }
