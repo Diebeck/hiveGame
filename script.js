@@ -124,6 +124,7 @@ function sprite(options) {
         this.body.style.imageRendering = "pixelated"
 
         //this.body.style.filter = "drop-shadow(5px 5px 5px #222)"
+        console.log(this.body.style)
 
         this.body.style.border = this.debug ? "1px solid yellow" : "none"
     }
@@ -135,8 +136,8 @@ window.onload = function() {
 
     const world = new sprite({
         size: {
-            x: 1000,
-            y: 1000
+            x: 100,
+            y: 100
         },
         offset: {
             x: 0,
@@ -146,13 +147,13 @@ window.onload = function() {
             x: 0,
             y: 0,
             z: 0,
-            p: 0
+            p: 500
         },
         texture: "background.png"
     })
     const child = new sprite({
         parent: world,
-        texture: "bot2.png",
+        texture: "botWalk.gif",
         pos: {
             x: 0,
             y: 0
