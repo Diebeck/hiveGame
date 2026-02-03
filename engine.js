@@ -21,9 +21,11 @@ export function sprite(options) {
 
     this.texture
     this.size = options.size
+    this.ready = false
 
     this.setTexture = function(url) {
         if (url) {
+            sprite.ready = false
             sprite.texture = new Image();
             sprite.texture.onload = function() {
                 if (sprite.size == null) {
@@ -32,6 +34,7 @@ export function sprite(options) {
                         y: sprite.texture.height
                     }
                 }
+                sprite.ready = true
                 sprite.render()
             }
             sprite.texture.src = "assets/textures/"+ url;
@@ -81,17 +84,19 @@ export function sprite(options) {
     }
 
     this.render = function() {
+        if (!sprite.ready) {return}
         // Sets the center of the element to where it's top left corner was
         // Then sets its center to the center of its parent
         this.body.style.position = "absolute"
-        this.body.style.left = (this.pos.x - this.size.x/2) + nopx(this.parent.body.style.width)/2 +"px"
-        this.body.style.top = (-this.pos.y - this.size.y/2) + nopx(this.parent.body.style.height)/2 +"px"
+        this.body.style.left = -this.size.x/2 + nopx(this.parent.body.style.width)/2 +"px"
+        this.body.style.top = -this.size.y/2 + nopx(this.parent.body.style.height)/2 +"px"
 
         this.body.style.transform = ""
         if (this.rot.p) {
             this.body.style.transformStyle = "preserve-3d"
             this.body.style.transform += "perspective("+ this.rot.p +"px) "
         }
+        this.body.style.transform += "translate("+ this.pos.x +"px, "+ this.pos.y +"px) " // X Y
         this.body.style.transform += "rotateX("+ this.rot.x +"deg) "
         this.body.style.transform += "rotateY("+ this.rot.y +"deg) "
         this.body.style.transform += "rotateZ("+ this.rot.z +"deg) "
@@ -110,8 +115,9 @@ export function sprite(options) {
         this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
         this.body.style.imageRendering = "pixelated"
 
-        //this.body.style.filter = "drop-shadow(5px 5px 5px #222)"
-        console.log(this.body.style)
+        this.body.style.filter = "drop-shadow(5px 5px 5px #222)"
+        this.body.style.filter = "none"
+        //console.log(this.body.style)
 
         this.body.style.border = this.debug ? "1px solid yellow" : "none"
     }

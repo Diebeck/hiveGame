@@ -20,8 +20,8 @@ window.onload = function() {
 
     const world = new sprite({
         size: {
-            x: 100,
-            y: 100
+            x: 10000,
+            y: 10000
         },
         offset: {
             x: 0,
@@ -43,13 +43,17 @@ window.onload = function() {
             y: 0
         },
         rot: {
-            x: -15,
+            x: 0,
             y: 0,
             z: 0,
             p: 0
         },
         onClick: function(event) {
             console.log("Bot clicked!")
+        },
+        offset: {
+            x: 0,
+            y: 0
         }
     }) */
 
@@ -67,6 +71,8 @@ window.onload = function() {
     }
 
     const debugInfo = this.document.getElementById("debugInfo")
+
+    let lastTime
 
     const camPos = {x:0, y:0}
     function render() {
@@ -91,8 +97,14 @@ window.onload = function() {
         debugInfo.innerText += "Cam zoom: "+ camZoom +" ("+ world.scale.toFixed(2) +")\n"
 
         //child.setPos({x: child.pos.x - 0.01, y: 0})
+        debugInfo.innerText += "Render: "+ (Date.now() - lastTime) +" ms"
+        lastTime = Date.now()
+
+        child.setPos({x: child.pos.x % 50 - 0.2, y: 0})
+        
+        requestAnimationFrame(render)
     }
 
-    setInterval(render, 10)
+    requestAnimationFrame(render)
 }
 
