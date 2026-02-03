@@ -28,14 +28,14 @@ window.onload = function() {
             y: 0
         },
         rot: {
-            x: 0,
+            x: 45,
             y: 0,
             z: 0,
             p: 500
         },
         texture: "background.png"
     })
-    const child = new sprite({
+    /* const child = new sprite({
         parent: world,
         texture: "botWalk.gif",
         pos: {
@@ -47,8 +47,11 @@ window.onload = function() {
             y: 0,
             z: 0,
             p: 0
+        },
+        onClick: function(event) {
+            console.log("Bot clicked!")
         }
-    })
+    }) */
 
     const canvas = document.getElementById("canvas")
     canvas.style.width = window.innerWidth +"px"
@@ -86,6 +89,8 @@ window.onload = function() {
         debugInfo.innerText = ""
         debugInfo.innerText += "Cam X Y: "+ camPos.x.toFixed(2) +" "+ camPos.y.toFixed(2) +"\n"
         debugInfo.innerText += "Cam zoom: "+ camZoom +" ("+ world.scale.toFixed(2) +")\n"
+
+        //child.setPos({x: child.pos.x - 0.01, y: 0})
     }
 
     setInterval(render, 10)

@@ -16,6 +16,8 @@ export function sprite(options) {
     this.offset = options.offset || {x:0, y:0}
     this.rot = options.rot || {x:0, y:0, z:0}
     this.scale = options.scale || 1
+    this.onClick = options.onClick
+    this.debug = options.debug || false
 
     this.texture
     this.size = options.size
@@ -41,18 +43,16 @@ export function sprite(options) {
 
     this.setTexture(options.texture)
 
-    this.debug = options.debug || false
-
     this.body = document.createElement("div")
     this.parent.body.appendChild(this.body)
-
+    this.body.addEventListener("click", (event) => {
+        event.stopPropagation()
+        if (sprite.onClick) {
+            sprite.onClick(event)
+        }
+    })
     this.setPos = function(pos) {
         this.pos = pos
-        this.render()
-    }
-    this.changePos = function(change) {
-        this.pos.x += change.x
-        this.pos.y += change.y
         this.render()
     }
     this.setRot = function(rot) {
@@ -106,6 +106,7 @@ export function sprite(options) {
         }
         
         this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) "
+        this.body.style.transform += "translateZ(0) "
         this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
         this.body.style.imageRendering = "pixelated"
 
