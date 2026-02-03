@@ -20,22 +20,22 @@ window.onload = function() {
 
     const world = new sprite({
         size: {
-            x: 10000,
-            y: 10000
+            x: 1000,
+            y: 1000
         },
         offset: {
             x: 0,
             y: 0
         },
         rot: {
-            x: 45,
+            x: 0,
             y: 0,
             z: 0,
-            p: 500
+            p: 0
         },
         texture: "background.png"
     })
-    /* const child = new sprite({
+    const child = new sprite({
         parent: world,
         texture: "botWalk.gif",
         pos: {
@@ -55,7 +55,7 @@ window.onload = function() {
             x: 0,
             y: 0
         }
-    }) */
+    })
 
     const canvas = document.getElementById("canvas")
     canvas.style.width = window.innerWidth +"px"
@@ -72,10 +72,13 @@ window.onload = function() {
 
     const debugInfo = this.document.getElementById("debugInfo")
 
-    let lastTime
+    let lastTime = Date.now()
 
     const camPos = {x:0, y:0}
     function render() {
+        let delta = Date.now() - lastTime // delta = time last frame took
+        lastTime = Date.now()
+
         let camSpeed = 12
         if (heldKeys["ShiftLeft"]) {camSpeed *= 2}
         if (heldKeys["KeyW"]) {camPos.y += camSpeed / world.scale}
@@ -95,14 +98,21 @@ window.onload = function() {
         debugInfo.innerText = ""
         debugInfo.innerText += "Cam X Y: "+ camPos.x.toFixed(2) +" "+ camPos.y.toFixed(2) +"\n"
         debugInfo.innerText += "Cam zoom: "+ camZoom +" ("+ world.scale.toFixed(2) +")\n"
-
-        //child.setPos({x: child.pos.x - 0.01, y: 0})
-        debugInfo.innerText += "Render: "+ (Date.now() - lastTime) +" ms"
-        lastTime = Date.now()
-
-        child.setPos({x: child.pos.x % 50 - 0.2, y: 0})
+        debugInfo.innerText += "Render: "+ delta +" ms"
+        
+        tick(delta/16) // 16 milliseconds =~ 60fps
         
         requestAnimationFrame(render)
+    }
+
+    let oog = Date.now()
+    function tick(d) {
+        child.setPos({x: child.pos.x - 0.2*d, y: 0})
+        if (child.pos.x < -50) {
+            child.setPos({x: 0, y: 0})
+            console.log("Took me "+ (Date.now() - oog))
+            oog = Date.now()
+        }
     }
 
     requestAnimationFrame(render)

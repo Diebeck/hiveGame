@@ -97,21 +97,21 @@ export function sprite(options) {
             this.body.style.transform += "perspective("+ this.rot.p +"px) "
         }
         this.body.style.transform += "translate("+ this.pos.x +"px, "+ this.pos.y +"px) " // X Y
-        this.body.style.transform += "rotateX("+ this.rot.x +"deg) "
-        this.body.style.transform += "rotateY("+ this.rot.y +"deg) "
-        this.body.style.transform += "rotateZ("+ this.rot.z +"deg) "
+        this.body.style.transform += "rotateX("+ this.rot.x +"deg) " // Rotation X
+        this.body.style.transform += "rotateY("+ this.rot.y +"deg) " // Rotation Y
+        this.body.style.transform += "rotateZ("+ this.rot.z +"deg) " // Rotation Z (2D)
         this.body.style.transformStyle = ""
-        this.body.style.transform += "scale("+ this.scale +") "
+        this.body.style.transform += "scale("+ this.scale +") " // Scale
         //this.body.style.transformOrigin = "bottom"
 
-        this.body.style.width = this.size.x +"px"
-        this.body.style.height = this.size.y +"px"
+        this.body.style.width = this.size.x +"px" // Width
+        this.body.style.height = this.size.y +"px" // Height
         if (this.texture != null) {
             this.body.style.background = "url("+ this.texture.src +")"
         }
         
-        this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) "
-        this.body.style.transform += "translateZ(0) "
+        this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) " // Offset
+        //this.body.style.transform += "translateZ(0) "
         this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
         this.body.style.imageRendering = "pixelated"
 
