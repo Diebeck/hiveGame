@@ -18,6 +18,8 @@ function clamp(value, min, max) {
 window.onload = function() {
     console.log("Everything has been loaded!");
 
+    const cam = {body: document.getElementById("canvas"), children: [], ready: true}
+    
     const world = new sprite({
         size: {
             x: 1000,
@@ -36,8 +38,6 @@ window.onload = function() {
         texture: "background.png"
     })
     const child = new sprite({
-        parent: world,
-        texture: "botWalk.gif",
         pos: {
             x: 0,
             y: 0
@@ -50,12 +50,57 @@ window.onload = function() {
         },
         onClick: function(event) {
             console.log("Bot clicked!")
+            child.setDebug(!child.debug)
         },
         offset: {
             x: 0,
             y: 0
         }
     })
+
+    world.setParent(cam)
+
+    world.append(child)
+    console.log(world.children)
+    /* world.append(child)
+    console.log(world.children)
+    world.append(child)
+    console.log(world.children) */
+
+    const orbit = new sprite({
+        texture: "placeholder.png",
+        scale: 0.25,
+        offset: {
+            x: 0,
+            y: -128
+        }
+    })
+    child.append(orbit)
+   
+    /*
+
+    const planet = new sprite({
+        parent: child,
+        texture: "canvas",
+        pos: {
+            x: 0,
+            y: 0
+        },
+        size: {
+            x: 32,
+            y: 32
+        },
+        onClick: function(event) {
+            console.log(planet)
+            planet.render()
+        }
+    })
+    console.log(planet)
+    const ctx = planet.body.getContext("2d")
+    ctx.fillStyle = "rgb(200 0 0 / 25%)";
+    ctx.fillRect(0, 0, 32, 32);
+    ctx.fillStyle = "rgb(0 0 200)";
+    ctx.fillRect(15, 15, 2, 2) */
 
     const canvas = document.getElementById("canvas")
     canvas.style.width = window.innerWidth +"px"
@@ -110,9 +155,11 @@ window.onload = function() {
         child.setPos({x: child.pos.x - 0.2*d, y: 0})
         if (child.pos.x < -50) {
             child.setPos({x: 0, y: 0})
-            console.log("Took me "+ (Date.now() - oog))
+            //console.log("Took me "+ (Date.now() - oog))
+            //console.log(child)
             oog = Date.now()
         }
+        orbit.setRot({x: 0, y:0, z: orbit.rot.z + 2})
     }
 
     requestAnimationFrame(render)

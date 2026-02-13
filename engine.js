@@ -11,7 +11,10 @@ export function sprite(options) {
     if (options == null) {options = {}}
     const sprite = this
 
-    this.parent = options.parent || {body: document.getElementById("canvas")} // Default parent is the canvas
+    this.children = []
+    this.parent = options.parent
+    this.ready = false
+
     this.pos = options.pos || {x:0, y:0}
     this.offset = options.offset || {x:0, y:0}
     this.rot = options.rot || {x:0, y:0, z:0}
@@ -21,7 +24,15 @@ export function sprite(options) {
 
     this.texture
     this.size = options.size
-    this.ready = false
+
+    this.imReady = function() {
+        sprite.ready = true
+        sprite.render()
+        console.log(options.texture +" ready, rendering children")
+        for (const child of sprite.children) {
+            child.render()
+        }
+    }
 
     this.setTexture = function(url) {
         if (url) {
@@ -34,8 +45,7 @@ export function sprite(options) {
                         y: sprite.texture.height
                     }
                 }
-                sprite.ready = true
-                sprite.render()
+                sprite.imReady()
             }
             sprite.texture.src = "assets/textures/"+ url;
         } else {
@@ -44,10 +54,29 @@ export function sprite(options) {
         }
     }
 
-    this.setTexture(options.texture)
+    this.append = function(child) {
+        sprite.children.push(child)
+        child.setParent(sprite)
+    }
+    this.setParent = function(parent) {
+        if (sprite.parent) {
+            sprite.parent.children = sprite.parent.children.filter(element => element != sprite)
+        }
+        sprite.parent = parent
+        parent.body.appendChild(this.body)
+    }
+    
 
-    this.body = document.createElement("div")
-    this.parent.body.appendChild(this.body)
+    if (options.texture != "canvas") { // Normal behaviour
+        this.setTexture(options.texture)
+        this.body = document.createElement("div")
+    } else { // Special canvas behaviour
+        this.body = document.createElement("canvas")
+        this.body.width = this.size.x
+        this.body.height = this.size.y
+        this.ready = true
+    }
+
     this.body.addEventListener("click", (event) => {
         event.stopPropagation()
         if (sprite.onClick) {
@@ -84,7 +113,7 @@ export function sprite(options) {
     }
 
     this.render = function() {
-        if (!sprite.ready) {return}
+        if (!sprite.ready || !sprite.parent.ready) {return}
         // Sets the center of the element to where it's top left corner was
         // Then sets its center to the center of its parent
         this.body.style.position = "absolute"
