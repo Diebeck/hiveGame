@@ -18,8 +18,23 @@ function clamp(value, min, max) {
 window.onload = function() {
     console.log("Everything has been loaded!");
 
+    let selected = null
+    function select(object) {
+        if (selected) {
+            selected.body.style.filter = ""
+        }
+        if (selected == object) {
+            selected.body.style.filter = ""
+            selected = null
+        } else {
+            selected = object
+            selected.body.style.filter = "brightness(1.3)"
+        }
+        console.log("Selected is now:", selected)
+    }
+
     const cam = {body: document.getElementById("canvas"), children: [], ready: true}
-    
+
     const world = new sprite({
         size: {
             x: 1000,
@@ -35,7 +50,10 @@ window.onload = function() {
             z: 0,
             p: 0
         },
-        texture: "background.png"
+        texture: "background.png",
+        onClick: function(pos) {
+            makePlatform(pos.x, pos.y)
+        }
     })
     const child = new sprite({
         pos: {
@@ -94,6 +112,22 @@ window.onload = function() {
     ctx.fillStyle = "rgb(0 0 200)";
     ctx.fillRect(15, 15, 2, 2)
 
+    function makePlatform(x, y) {
+        const platform = new sprite({
+            type: "platform",
+            parent: world,
+            texture: "platform.png",
+            pos: {
+                x: x,
+                y: y
+            },
+            onClick: function(event) {
+                select(platform)
+            }
+        })
+        world.append(platform)
+    }
+
     const canvas = document.getElementById("canvas")
     canvas.style.width = window.innerWidth +"px"
     canvas.style.height = window.innerHeight +"px"
@@ -102,7 +136,7 @@ window.onload = function() {
     world.setScale(Math.pow(camZoom+1, 2))
     canvas.onwheel = function(e) {
         camZoom += e.deltaY/-1000
-        camZoom = clamp(camZoom, -0.29, 3)
+        camZoom = clamp(camZoom, -0.29, 4)
         camZoom = Math.floor(camZoom*100)/100 // Removes any imprecision errors
         world.setScale(Math.pow(camZoom+1, 2))
     }
@@ -116,7 +150,7 @@ window.onload = function() {
         let delta = Date.now() - lastTime // delta = time last frame took
         lastTime = Date.now()
 
-        let camSpeed = 12
+        let camSpeed = 6
         if (heldKeys["ShiftLeft"]) {camSpeed *= 2}
         if (heldKeys["KeyW"]) {camPos.y += camSpeed / world.scale}
         if (heldKeys["KeyS"]) {camPos.y -= camSpeed / world.scale}
@@ -125,20 +159,20 @@ window.onload = function() {
         camPos.x = clamp(camPos.x, world.size.x/-2, world.size.x/2)
         camPos.y = clamp(camPos.y, world.size.y/-2, world.size.y/2)
         world.setOffset({
-            x: world.offset.x + (-world.offset.x-camPos.x)/5, // range 0-20 +1
-            y: world.offset.y + (-world.offset.y+camPos.y)/5
+            x: world.offset.x + (-world.offset.x-camPos.x)/(5 * 16/delta), // range 0-20 +1
+            y: world.offset.y + (-world.offset.y+camPos.y)/(5 * 16/delta)
         })
         canvas.style.width = window.innerWidth +"px"
         canvas.style.height = window.innerHeight +"px"
         world.render()
-
+        
+        tick(delta/16) // 16 milliseconds =~ 60fps
+        
         debugInfo.innerText = ""
         debugInfo.innerText += "Cam X Y: "+ camPos.x.toFixed(2) +" "+ camPos.y.toFixed(2) +"\n"
         debugInfo.innerText += "Cam zoom: "+ camZoom +" ("+ world.scale.toFixed(2) +")\n"
         debugInfo.innerText += "Render: "+ delta +" ms"
-        
-        tick(delta/16) // 16 milliseconds =~ 60fps
-        
+
         requestAnimationFrame(render)
     }
 

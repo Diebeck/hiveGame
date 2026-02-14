@@ -118,10 +118,16 @@ export function sprite(options) {
         sprite.imReady()
     }
 
-    this.body.addEventListener("click", (event) => {
-        event.stopPropagation()
+    console.log(this.parent)
+    //this.parent.body.appendChild(this.body)
+    this.body.addEventListener("mousedown", (event) => {
         if (sprite.onClick) {
-            sprite.onClick(event)
+            event.stopPropagation()
+            const pos = {
+                x: event.offsetX - (sprite.size.x/2),
+                y: event.offsetY - (sprite.size.y/2)
+            }
+            sprite.onClick(pos)
         }
     })
     this.setPos = function(pos) {
