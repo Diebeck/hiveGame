@@ -55,17 +55,12 @@ window.onload = function() {
         offset: {
             x: 0,
             y: 0
-        }
+        },
+        texture: "botWalk.gif"
     })
 
     world.setParent(cam)
-
     world.append(child)
-    console.log(world.children)
-    /* world.append(child)
-    console.log(world.children)
-    world.append(child)
-    console.log(world.children) */
 
     const orbit = new sprite({
         texture: "placeholder.png",
@@ -76,15 +71,12 @@ window.onload = function() {
         }
     })
     child.append(orbit)
-   
-    /*
 
     const planet = new sprite({
-        parent: child,
         texture: "canvas",
         pos: {
             x: 0,
-            y: 0
+            y: 50
         },
         size: {
             x: 32,
@@ -95,12 +87,12 @@ window.onload = function() {
             planet.render()
         }
     })
-    console.log(planet)
+    child.append(planet)
     const ctx = planet.body.getContext("2d")
     ctx.fillStyle = "rgb(200 0 0 / 25%)";
     ctx.fillRect(0, 0, 32, 32);
     ctx.fillStyle = "rgb(0 0 200)";
-    ctx.fillRect(15, 15, 2, 2) */
+    ctx.fillRect(15, 15, 2, 2)
 
     const canvas = document.getElementById("canvas")
     canvas.style.width = window.innerWidth +"px"

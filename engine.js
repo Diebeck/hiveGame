@@ -25,13 +25,43 @@ export function sprite(options) {
     this.texture
     this.size = options.size
 
-    this.imReady = function() {
-        sprite.ready = true
-        sprite.render()
-        console.log(options.texture +" ready, rendering children")
-        for (const child of sprite.children) {
-            child.render()
+    this.render = function() {
+        if (!sprite.parent) {
+            console.log(sprite.texture +" tried rendering but couldnt")
+            return
+        } // Stop if theres no parent
+        if (!sprite.ready || !sprite.parent.ready) {return} // Stop if texture or parent's texture isnt ready
+        // Sets the center of the element to where it's top left corner was
+        // Then sets its center to the center of its parent
+        this.body.style.position = "absolute"
+        this.body.style.left = -this.size.x/2 + nopx(this.parent.body.style.width)/2 +"px"
+        this.body.style.top = -this.size.y/2 + nopx(this.parent.body.style.height)/2 +"px"
+
+        this.body.style.transform = ""
+        if (this.rot.p) {
+            this.body.style.transformStyle = "preserve-3d"
+            this.body.style.transform += "perspective("+ this.rot.p +"px) "
         }
+        this.body.style.transform += "translate("+ this.pos.x +"px, "+ this.pos.y +"px) " // X Y
+        this.body.style.transform += "rotateX("+ this.rot.x +"deg) " // Rotation X
+        this.body.style.transform += "rotateY("+ this.rot.y +"deg) " // Rotation Y
+        this.body.style.transform += "rotateZ("+ this.rot.z +"deg) " // Rotation Z (2D)
+        this.body.style.transformStyle = ""
+        this.body.style.transform += "scale("+ this.scale +") " // Scale
+        //this.body.style.transformOrigin = "bottom"
+
+        this.body.style.width = this.size.x +"px" // Width
+        this.body.style.height = this.size.y +"px" // Height
+        if (this.texture != null) {
+            this.body.style.background = "url("+ this.texture.src +")"
+        }
+        
+        this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) " // Offset
+        //this.body.style.transform += "translateZ(0) "
+        this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
+        this.body.style.imageRendering = "pixelated"
+
+        this.body.style.outline = this.debug ? "1px solid yellow" : "none"
     }
 
     this.setTexture = function(url) {
@@ -51,12 +81,14 @@ export function sprite(options) {
         } else {
             sprite.texture = null
             if (sprite.size == null) {sprite.size = {x:0, y:0}}
+            sprite.imReady()
         }
     }
 
     this.append = function(child) {
         sprite.children.push(child)
         child.setParent(sprite)
+        child.render()
     }
     this.setParent = function(parent) {
         if (sprite.parent) {
@@ -64,8 +96,17 @@ export function sprite(options) {
         }
         sprite.parent = parent
         parent.body.appendChild(this.body)
+        sprite.render()
     }
-    
+    this.imReady = function() {
+        sprite.ready = true
+        sprite.render()
+        console.log(options.texture +" ready, rendering children:")
+        for (const child of sprite.children) {
+            child.render()
+            console.log("- "+ child.texture)
+        }
+    }
 
     if (options.texture != "canvas") { // Normal behaviour
         this.setTexture(options.texture)
@@ -74,7 +115,7 @@ export function sprite(options) {
         this.body = document.createElement("canvas")
         this.body.width = this.size.x
         this.body.height = this.size.y
-        this.ready = true
+        sprite.imReady()
     }
 
     this.body.addEventListener("click", (event) => {
@@ -112,43 +153,5 @@ export function sprite(options) {
         this.render()
     }
 
-    this.render = function() {
-        if (!sprite.ready || !sprite.parent.ready) {return}
-        // Sets the center of the element to where it's top left corner was
-        // Then sets its center to the center of its parent
-        this.body.style.position = "absolute"
-        this.body.style.left = -this.size.x/2 + nopx(this.parent.body.style.width)/2 +"px"
-        this.body.style.top = -this.size.y/2 + nopx(this.parent.body.style.height)/2 +"px"
-
-        this.body.style.transform = ""
-        if (this.rot.p) {
-            this.body.style.transformStyle = "preserve-3d"
-            this.body.style.transform += "perspective("+ this.rot.p +"px) "
-        }
-        this.body.style.transform += "translate("+ this.pos.x +"px, "+ this.pos.y +"px) " // X Y
-        this.body.style.transform += "rotateX("+ this.rot.x +"deg) " // Rotation X
-        this.body.style.transform += "rotateY("+ this.rot.y +"deg) " // Rotation Y
-        this.body.style.transform += "rotateZ("+ this.rot.z +"deg) " // Rotation Z (2D)
-        this.body.style.transformStyle = ""
-        this.body.style.transform += "scale("+ this.scale +") " // Scale
-        //this.body.style.transformOrigin = "bottom"
-
-        this.body.style.width = this.size.x +"px" // Width
-        this.body.style.height = this.size.y +"px" // Height
-        if (this.texture != null) {
-            this.body.style.background = "url("+ this.texture.src +")"
-        }
-        
-        this.body.style.transform += "translate("+ this.offset.x +"px, "+ this.offset.y +"px) " // Offset
-        //this.body.style.transform += "translateZ(0) "
-        this.body.style.transformOrigin = (-this.offset.x+this.body.style.width/2) +"px "+ (-this.offset.y+this.body.style.height/2) +"px"
-        this.body.style.imageRendering = "pixelated"
-
-        this.body.style.filter = "drop-shadow(5px 5px 5px #222)"
-        this.body.style.filter = "none"
-        //console.log(this.body.style)
-
-        this.body.style.border = this.debug ? "1px solid yellow" : "none"
-    }
     //this.render()
 }
